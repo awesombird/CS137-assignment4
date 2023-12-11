@@ -195,6 +195,7 @@ def train(model, train_data, val_data, loss_func, optimizer, scheduler, num_epoc
     
     train_loader = batchify(train_data, batch_size)
     val_loader = batchify(val_data, batch_size)
+    val_loader = val_loader.to(device)
 
     for epoch in range(num_epochs):
         model.train()
