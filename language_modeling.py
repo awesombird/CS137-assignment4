@@ -139,6 +139,8 @@ class SmallLanguageModel(torch.nn.Module):
 def train_helper(model, train_loader, loss_func, optimizer, bptt=50, device="cpu"):
     
     loss_tot = 0.0
+    log_interval = 200
+    log_count = 0
     
     for i in range(0, train_loader.size(0), bptt):
         data, targets = get_batch(train_loader, i, bptt)
@@ -156,6 +158,13 @@ def train_helper(model, train_loader, loss_func, optimizer, bptt=50, device="cpu
         loss.backward()
         optimizer.step()
         loss_tot += loss.item()
+        
+        if i >= log_interval * log_count:
+            log_count += 1
+            
+            print("Index:", i, "Loss:", loss_tot)
+        
+        
     
 
 
