@@ -46,7 +46,7 @@ class PositionalEncoding(torch.nn.Module):
 
 class TransformerEncoderLayer(torch.nn.Module):
     
-    def __init__(self, vocabSize, dropout=0.2, dimHidden=100, nHead=2, mask=None):
+    def __init__(self, vocabSize, dropout=0.2, dimHidden=100, nHead=2, mask=None, device='cpu'):
         """
         args: 
             vocabulary: a list of characters. The list also provide the vocabulary size  
@@ -62,6 +62,7 @@ class TransformerEncoderLayer(torch.nn.Module):
         self.dimHidden = dimHidden
         self.numHeads = nHead
         self.mask = mask
+        self.device = device
 
         # Sub-modules
         self.multiHeadAttn = torch.nn.MultiheadAttention(self.vocabSize, self.numHeads, dropout=0)
@@ -74,6 +75,7 @@ class TransformerEncoderLayer(torch.nn.Module):
         # will get you the mask
 
         mask = generate_square_subsequent_mask(X.size(0))
+        mask.to(self.device)
 
         # attn_output_weights - Only returned when need_weights=True
         attn_output, attn_output_weights = self.multiHeadAttn(X, X, X, attn_mask=mask, is_causal=True)
@@ -91,7 +93,7 @@ class SmallLanguageModel(torch.nn.Module):
     A small language model using the transformer architecture
     """
 
-    def __init__(self, vocabulary, dropout=0.2, dimHidden=100, nlayers=2,  nHead=2):
+    def __init__(self, vocabulary, dropout=0.2, dimHidden=100, nlayers=2,  nHead=2, device='cpu'):
         """
         args: 
             vocabulary: a list of characters. The list also provide the vocabulary size  
@@ -111,7 +113,7 @@ class SmallLanguageModel(torch.nn.Module):
         # Sub-modules
         self.inputEmb = torch.nn.Embedding(num_embeddings=self.vocabSize, embedding_dim=self.vocabSize)
         self.posEnc = PositionalEncoding(self.vocabSize)
-        self.transEnc = TransformerEncoderLayer(self.vocabSize, dropout=dropout, dimHidden=dimHidden, nHead=nHead)
+        self.transEnc = TransformerEncoderLayer(self.vocabSize, dropout=dropout, dimHidden=dimHidden, nHead=nHead, device=device)
         self.linear = torch.nn.Linear(self.vocabSize, self.vocabSize)
 
     def forward(self, X):
