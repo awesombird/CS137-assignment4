@@ -75,7 +75,7 @@ class TransformerEncoderLayer(torch.nn.Module):
         # will get you the mask
 
         mask = generate_square_subsequent_mask(X.size(0))
-        mask.to(self.device)
+        mask = mask.to(self.device)
 
         # attn_output_weights - Only returned when need_weights=True
         attn_output, attn_output_weights = self.multiHeadAttn(X, X, X, attn_mask=mask, is_causal=True)
