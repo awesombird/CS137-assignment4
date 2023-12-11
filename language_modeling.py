@@ -108,6 +108,7 @@ class SmallLanguageModel(torch.nn.Module):
         self.vocabSize = len(self.vocabulary)
         self.numHeads = nHead
         self.numlayers = nlayers
+        self.device = device
 
         # print(self.vocabSize, self.numHeads, self.vocabSize/self.numHeads)
         # Sub-modules
@@ -129,6 +130,7 @@ class SmallLanguageModel(torch.nn.Module):
 
         # print("X: ", X.size(0), X.size(1))
         # mask = generate_square_subsequent_mask(X.size(1))
+        X = X.to(self.device)
         inputs = self.inputEmb(X)
         inputs = self.posEnc(inputs)
 
