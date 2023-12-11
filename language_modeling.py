@@ -163,7 +163,7 @@ def train_helper(model, train_loader, loss_func, optimizer, bptt=50, device="cpu
         optimizer.step()
         loss_tot += loss.item()
         
-        if i >= log_interval * log_count:
+        if i / bptt >= log_interval * log_count:
             log_count += 1
             
             print("Index:", i, "Loss:", loss_tot)
