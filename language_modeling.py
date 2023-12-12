@@ -138,7 +138,7 @@ class SmallLanguageModel(torch.nn.Module):
 
         output = inputs
         for i in range(self.numlayers):
-            layer = TransformerEncoderLayer(self.vocabSize, dropout=self.dropout, dimHidden=self.dimHidden, nHead=self.numHead, device=self.device)
+            layer = TransformerEncoderLayer(self.vocabSize, dropout=self.dropout, dimHidden=self.dimHidden, nHead=self.numHeads, device=self.device)
             self.layers.append(layer)
             output = layer(output)
 
