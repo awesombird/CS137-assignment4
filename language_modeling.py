@@ -109,13 +109,15 @@ class SmallLanguageModel(torch.nn.Module):
         self.numHeads = nHead
         self.numlayers = nlayers
         self.device = device
+        self.dropout = dropout
+        self.dimHidden = dimHidden
 
         # print(self.vocabSize, self.numHeads, self.vocabSize/self.numHeads)
         # Sub-modules
         self.inputEmb = torch.nn.Embedding(num_embeddings=self.vocabSize, embedding_dim=self.vocabSize)
         self.posEnc = PositionalEncoding(self.vocabSize)
-        self.transEnc = TransformerEncoderLayer(self.vocabSize, dropout=dropout, dimHidden=dimHidden, nHead=nHead, device=device)
         self.linear = torch.nn.Linear(self.vocabSize, self.vocabSize)
+        self.layers = []
 
     def forward(self, X):
         """
@@ -136,14 +138,16 @@ class SmallLanguageModel(torch.nn.Module):
 
         output = inputs
         for i in range(self.numlayers):
-            output = self.transEnc(output)
+            layer = TransformerEncoderLayer(self.vocabSize, dropout=self.dropout, dimHidden=self.dimHidden, nHead=self.numHead, device=self.device)
+            self.layers.append(layer)
+            output = layer(output)
 
         return output
 
 def train_helper(model, train_loader, loss_func, optimizer, bptt=50, device="cpu"):
     
-    loss_tot = 0.0
-    log_interval = 200
+    running_loss = 0.0
+    log_interval = 2000
     log_count = 0
     
     for i in range(0, train_loader.size(0), bptt):
@@ -161,12 +165,14 @@ def train_helper(model, train_loader, loss_func, optimizer, bptt=50, device="cpu
 
         loss.backward()
         optimizer.step()
-        loss_tot += loss.item()
+        running_loss += loss.item()
+        
         
         if i / bptt >= log_interval * log_count:
+            # running_loss / ((i / bptt) - log_interval * log_count + 1)
+            print("Index:", i, "Loss:", loss.item() / bptt)
             log_count += 1
-            
-            print("Index:", i, "Loss:", loss_tot)
+            running_loss = 0.0
         
         
     
