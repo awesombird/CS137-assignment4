@@ -79,6 +79,7 @@ class TransformerEncoderLayer(torch.nn.Module):
 
         # attn_output_weights - Only returned when need_weights=True
         attn_output, attn_output_weights = self.multiHeadAttn(X, X, X, attn_mask=mask, is_causal=True)
+        attn_output = attn_output.to(self.device)
 
         norm = self.addNorm1(X, attn_output)
         ffn = self.ffn(norm)
