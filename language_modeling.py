@@ -118,6 +118,8 @@ class SmallLanguageModel(torch.nn.Module):
         self.inputEmb = torch.nn.Embedding(num_embeddings=self.vocabSize, embedding_dim=self.vocabSize)
         self.posEnc = PositionalEncoding(self.vocabSize)
         self.linear = torch.nn.Linear(self.vocabSize, self.vocabSize)
+        self.transLayers = torch.nn.ModuleList([TransformerEncoderLayer(self.vocabSize, dropout=self.dropout, dimHidden=self.dimHidden, nHead=self.numHeads, device=self.device)
+                                                for _ in range(self.numlayers)])
         self.layers = []
 
     def forward(self, X):
@@ -138,9 +140,7 @@ class SmallLanguageModel(torch.nn.Module):
         inputs = self.posEnc(inputs)
 
         output = inputs
-        for i in range(self.numlayers):
-            layer = TransformerEncoderLayer(self.vocabSize, dropout=self.dropout, dimHidden=self.dimHidden, nHead=self.numHeads, device=self.device)
-            self.layers.append(layer)
+        for layer in self.transLayers:
             output = layer(output)
 
         return output
